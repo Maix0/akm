@@ -5,9 +5,13 @@ edition = "2024"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }
+axum-extra = { version = "0.10.1", features = ["cookie", "cookie-private"] }
+base64 = "0.22.1"
 chrono = { version = "0.4.41", features = ["serde"] }
 color-eyre = "0.6.5"
+env_logger = "0.11.8"
 futures = "0.3.31"
+log = "0.4.27"
 rand = "0.9.1"
 secrecy = { version = "0.10.3", features = ["serde"] }
 serde = { version = "1.0.219", features = ["derive"] }

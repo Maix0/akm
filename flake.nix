@@ -82,6 +82,7 @@
             openssl
             pkg-config
             sqlite-interactive
+            sqlx-cli
           ]
           ++ (packageIf "cargo-semver-checks" (p: p.packages.${system}.default))
           ++ (packageIf "cargo-workspace" (p: p.packages.${system}.default));
