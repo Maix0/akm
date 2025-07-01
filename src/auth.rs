@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
-struct UserAuth(crate::database::users::UserId);
+pub struct UserAuth(crate::database::users::UserId);
 
 const AUTH_COOKIE: &str = "session";
 

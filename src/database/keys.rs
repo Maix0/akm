@@ -12,16 +12,16 @@ super::defineID!(KeyId => "keys");
 
 #[derive(Debug, Clone)]
 pub struct TableKeys {
-    pub(super) id: KeyId,
-    pub(super) name: String,
-    pub(super) description: String,
+    pub id: KeyId,
+    pub name: String,
+    pub description: String,
     // currently the key is in plaintext, when everything will work, the key will be encrypted in
     // the database using AES-GCM
-    pub(super) api_key: SecretSlice<u8>,
+    pub api_key: SecretSlice<u8>,
 
-    pub(super) update_at: Option<DateTime>,
+    pub update_at: Option<DateTime>,
     // same as the `api_key`
-    pub(super) update_with: Option<SecretSlice<u8>>,
+    pub update_with: Option<SecretSlice<u8>>,
 }
 
 impl Database {

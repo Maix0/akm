@@ -11,9 +11,9 @@ super::defineID!(UserId => "users");
 
 #[derive(Debug, Clone)]
 pub struct TableUsers {
-    pub(super) id: UserId,
-    pub(super) name: String,
-    pub(super) token: SecretString,
+    pub id: UserId,
+    pub name: String,
+    pub token: SecretString,
 }
 
 impl Database {

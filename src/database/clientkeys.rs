@@ -1,3 +1,5 @@
+use crate::database::keys::KeyId;
+
 use super::Database;
 use super::DateTime;
 
@@ -44,15 +46,30 @@ impl Database {
         .fetch_one(&self.inner)
         .await?;
 
-        Ok((
-            ClientKeyId(
-                query
-                    .id
-                    .ok_or(eyre!("client<->key relation already exists"))?,
-            ),
-            query.secret.into(),
-        ))
+        Ok((ClientKeyId(query.id), query.secret.into()))
     }
+    pub async fn fetch_client_key_from_client_and_key(
+        &self,
+        client: super::clients::ClientId,
+        key: KeyId,
+    ) -> Result<Option<TableClientsKey>> {
+        let query = sqlx::query!(
+            "SELECT * FROM clients_key WHERE clientID = ? AND keyID = ? LIMIT 1",
+            client.0,
+            key.0
+        )
+        .fetch_optional(&self.inner)
+        .await?;
+
+        Ok(query.map(|mut s| TableClientsKey {
+            id: ClientKeyId(s.id),
+            client_id: super::clients::ClientId(s.clientID),
+            key_id: super::keys::KeyId(s.keyID),
+            secret: todo!(),
+            last_used: s.lastUsed.map(|t| DateTime::from_timestamp(t, 0).unwrap()),
+        }))
+    }
+
     pub async fn fetch_client_key(&self, key: ClientKeyId) -> Result<Option<TableClientsKey>> {
         let query = sqlx::query!("SELECT * FROM clients_key where id = ? LIMIT 1", key.0)
             .fetch_optional(&self.inner)
@@ -158,9 +175,9 @@ impl Database {
 }
 #[derive(Debug, Clone)]
 pub struct TableClientsKey {
-    pub(super) id: ClientKeyId,
-    pub(super) client_id: super::clients::ClientId,
-    pub(super) key_id: super::keys::KeyId,
-    pub(super) secret: SecretString,
-    pub(super) last_used: Option<DateTime>,
+    pub id: ClientKeyId,
+    pub client_id: super::clients::ClientId,
+    pub key_id: super::keys::KeyId,
+    pub secret: SecretString,
+    pub last_used: Option<DateTime>,
 }

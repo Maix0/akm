@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS keys (
 );
 
 CREATE TABLE IF NOT EXISTS clients_key (
-  id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   clientID INTEGER NOT NULL, -- the client that will use this key
   keyID INTEGER NOT NULL, -- the key id
   secret TEXT NOT NULL, -- the secret that the client will need to provide

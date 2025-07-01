@@ -11,9 +11,9 @@ super::defineID!(ClientId => "clients");
 
 #[derive(Debug, Clone)]
 pub struct TableClients {
-    pub(super) id: ClientId,
-    pub(super) name: String,
-    pub(super) description: String,
+    pub id: ClientId,
+    pub name: String,
+    pub description: String,
 }
 
 impl Database {

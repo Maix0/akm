@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   database.rs                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: maiboyer <maiboyer@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/24 17:49:06 by maiboyer          #+#    #+#             */
-/*   Updated: 2025/06/30 15:08:30 by maiboyer         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
 use secrecy::{ExposeSecret, SecretSlice, SecretString};
