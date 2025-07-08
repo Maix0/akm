@@ -2,7 +2,6 @@ use super::Database;
 
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
-use secrecy::{ExposeSecret, SecretSlice, SecretString};
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;

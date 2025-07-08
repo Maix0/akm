@@ -6,7 +6,6 @@ use super::DateTime;
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
 use rand::RngCore;
-use secrecy::{ExposeSecret, SecretSlice, SecretString};
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;
@@ -19,7 +18,7 @@ impl Database {
         &self,
         client: super::clients::ClientId,
         key: super::keys::KeyId,
-    ) -> Result<(ClientKeyId, SecretString)> {
+    ) -> Result<(ClientKeyId, String)> {
         let sha = {
             let mut sha = [0u8; 32];
             let mut rng = rand::rng();
@@ -27,16 +26,16 @@ impl Database {
             sha
         };
 
-        let token = SecretString::from({
+        let token = {
             let mut s = String::with_capacity(sha.len() * 2);
             for &x in sha.as_slice() {
                 use std::fmt::Write;
                 write!(s, "{x:02x}").unwrap();
             }
             s
-        });
+        };
 
-        let tok = token.expose_secret();
+        let tok = token.as_str();
         let query = sqlx::query!(
             "INSERT INTO clients_key ('clientID', 'keyID', 'secret') VALUES (?, ?, ?) RETURNING id, secret",
             client.0,
@@ -46,8 +45,18 @@ impl Database {
         .fetch_one(&self.inner)
         .await?;
 
-        Ok((ClientKeyId(query.id), query.secret.into()))
+        Ok((ClientKeyId(query.id), query.secret))
     }
+
+    pub async fn remove_clientkey(&self, key: ClientKeyId) -> Result<bool> {
+        sqlx::query!("DELETE FROM clients_key WHERE id = ?", key.0)
+            .execute(&self.inner)
+            .await
+            .inspect(|s| assert!(s.rows_affected() <= 1, "mutliple key with the same id"))
+            .map(|s| s.rows_affected() == 1)
+            .map_err(color_eyre::Report::from)
+    }
+
     pub async fn fetch_client_key_from_client_and_key(
         &self,
         client: super::clients::ClientId,
@@ -86,9 +95,9 @@ impl Database {
 
     pub async fn get_client_key_from_secret(
         &self,
-        secret: SecretString,
+        secret: impl AsRef<str>,
     ) -> Result<Option<TableClientsKey>> {
-        let s = secret.expose_secret();
+        let s = secret.as_ref();
         let query = sqlx::query!("SELECT * FROM clients_key where secret = ? LIMIT 1", s)
             .fetch_optional(&self.inner)
             .await?;
@@ -125,7 +134,7 @@ impl Database {
     }
 
     // update the secret used by the client_key
-    pub async fn update_client_secret(&self, key: ClientKeyId) -> Result<Option<SecretString>> {
+    pub async fn update_client_secret(&self, key: ClientKeyId) -> Result<Option<String>> {
         let sha = {
             let mut sha = [0u8; 32];
             let mut rng = rand::rng();
@@ -133,15 +142,15 @@ impl Database {
             sha
         };
 
-        let token = SecretString::from({
+        let token = {
             let mut s = String::with_capacity(sha.len() * 2);
             for &x in sha.as_slice() {
                 use std::fmt::Write;
                 write!(s, "{x:02x}").unwrap();
             }
             s
-        });
-        let s = token.expose_secret();
+        };
+        let s = token.as_str();
 
         sqlx::query!("UPDATE clients_key SET secret = ? WHERE id = ?", s, key.0)
             .execute(&self.inner)
@@ -178,6 +187,6 @@ pub struct TableClientsKey {
     pub id: ClientKeyId,
     pub client_id: super::clients::ClientId,
     pub key_id: super::keys::KeyId,
-    pub secret: SecretString,
+    pub secret: String,
     pub last_used: Option<DateTime>,
 }

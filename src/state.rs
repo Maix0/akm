@@ -4,7 +4,6 @@ use crate::config::Config;
 use axum::extract::FromRef;
 use axum_extra::extract::cookie::Key;
 use color_eyre::Result;
-use secrecy::ExposeSecret;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
@@ -16,7 +15,7 @@ pub struct AppState {
 impl AppState {
     pub async fn new(config: Config) -> Result<Self> {
         let config: Arc<Config> = Arc::new(config);
-        let key = Key::try_from(config.cookie_secret.expose_secret())?;
+        let key = Key::try_from(config.cookie_secret.as_slice())?;
         let db = crate::database::Database::new(&config.db).await?;
 
         Ok(Self { db, config, key })

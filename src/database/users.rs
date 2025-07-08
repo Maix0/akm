@@ -2,7 +2,6 @@ use super::Database;
 
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
-use secrecy::{ExposeSecret, SecretSlice, SecretString};
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;
@@ -13,11 +12,11 @@ super::defineID!(UserId => "users");
 pub struct TableUsers {
     pub id: UserId,
     pub name: String,
-    pub token: SecretString,
+    pub token: String,
 }
 
 impl Database {
-    pub async fn create_user(&self, name: impl AsRef<str>) -> Result<(UserId, SecretString)> {
+    pub async fn create_user(&self, name: impl AsRef<str>) -> Result<(UserId, String)> {
         let name = name.as_ref();
         let sha = sha2::Sha256::digest(name);
 
@@ -35,7 +34,7 @@ impl Database {
         .fetch_one(&self.inner)
         .await?;
 
-        Ok((UserId(query.id), query.token.into()))
+        Ok((UserId(query.id), query.token))
     }
 
     pub async fn fetch_user(&self, id: UserId) -> Result<Option<TableUsers>> {
@@ -46,7 +45,7 @@ impl Database {
         Ok(query.map(|s| TableUsers {
             id: UserId(id.0),
             name: s.name,
-            token: s.token.into(),
+            token: s.token,
         }))
     }
 
@@ -59,8 +58,8 @@ impl Database {
             .map_err(color_eyre::Report::from)
     }
 
-    pub async fn get_user_from_token(&self, token: SecretString) -> Result<Option<UserId>> {
-        let t = token.expose_secret();
+    pub async fn get_user_from_token(&self, token: String) -> Result<Option<UserId>> {
+        let t = token.as_str();
         sqlx::query!("SELECT id FROM users WHERE token = ? LIMIT 1", t)
             .fetch_optional(&self.inner)
             .await

@@ -1,6 +1,5 @@
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
-use secrecy::{ExposeSecret, SecretSlice, SecretString};
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;
@@ -34,7 +33,7 @@ impl Database {
 macro_rules! defineID {
     ($($name:ident => $table:literal),*$(,)?) => {
         $(
-            #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+            #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, ::serde::Serialize)]
             pub struct $name(pub(super) i64);
             impl $name {
                 pub fn inner(self) -> i64 { self.0 }
