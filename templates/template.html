@@ -1,7 +1,3 @@
-
-
-
-
 {%- set version='8' %}
 <!doctype html>
 <html lang="fr" data-bs-theme="dark">
@@ -9,19 +5,19 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>AKM - Maix.me</title>
-	<link href="/static/css/bootstrap.min.css?v={{ version }}" rel="stylesheet">
-	<link href="/static/css/common.css?v={{ version }}" rel="stylesheet">
-	<link rel="manifest" href="/static/manifest.json?v={{ version }}">
+	<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/static/css/common.css" rel="stylesheet">
+	<link rel="manifest" href="/static/manifest.json">
 	<link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
 	<link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png"/>
 	<meta name="theme-color" content="rgb(43, 48, 53)"/>
 
-	{% block css %}{% endblock %}
+	{% block css %} {% endblock css %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary mb-2 shadow">
 	<div class="container-fluid">
-		<a class="navbar-brand me-2 position-relative {{ 'no-click' if kiosk else '' }}" href="/">
+		<a class="navbar-brand me-2 position-relative" href="/">
 			<img src="/static/img/android-chrome-192x192.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
 			AKM
 		</a>
@@ -32,7 +28,7 @@
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="/{{ 'idle' if kiosk else '' }}">Clusters</a>
+						<a class="nav-link active" aria-current="page" href="/">Clusters</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link active" aria-current="page" href="/friends/">Amis</a>
@@ -55,20 +51,15 @@
 		</div>
 	</div>
 </div>
-{% block content %}{% endblock %}
+{% block content %} {% endblock content %}
 
-<script async src="/static/js/bootstrap.min.js?v={{ version }}"></script>
-<script src="/static/js/common.js?v={{ version }}"></script>
-{% block scripts %}{% endblock %}
-{% if theme and theme.enabled and len(theme.javascript) > 0 %}
-	<script>
-		{{ theme.javascript|safe }}
-	</script>
-{% endif %}
+<script async src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/common.js"></script>
+{% block scripts %} {% endblock scripts %}
 
-<link href="/static/fontawesome/css/fontawesome.min.css?v={{ version }}" rel="stylesheet">
-<link href="/static/fontawesome/css/solid.min.css?v={{ version }}" rel="stylesheet">
-<link href="/static/fontawesome/css/regular.min.css?v={{ version }}" rel="stylesheet">
-<link href="/static/fontawesome/css/brands.min.css?v={{ version }}" rel="stylesheet">
+<link href="/static/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="/static/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="/static/fontawesome/css/regular.min.css" rel="stylesheet">
+<link href="/static/fontawesome/css/brands.min.css" rel="stylesheet">
 </body>
 </html>

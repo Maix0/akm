@@ -9,6 +9,7 @@ mod state;
 use crate::{config::Config, state::AppState};
 use color_eyre::Result;
 use tokio::net::TcpListener;
+use tower_http::services::ServeDir;
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
@@ -46,7 +47,8 @@ async fn main() -> Result<()> {
 
     let router: axum::Router<()> = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-        .nest("/auth", auth::router(state.clone()));
+        .nest("/auth", auth::router(state.clone()))
+        .nest_service("/static", ServeDir::new("./static/"));
 
     let socket = TcpListener::bind((state.config.ip, state.config.port)).await?;
     axum::serve(socket, router).await?;
