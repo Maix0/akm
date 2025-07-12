@@ -1,6 +1,6 @@
 use base64::Engine;
 use color_eyre::{Result, eyre::eyre};
-use std::{net::Ipv4Addr, path::PathBuf};
+use std::{ffi::OsStr, net::Ipv4Addr, path::PathBuf};
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -14,22 +14,30 @@ pub struct Config {
     pub oauth_id: String,
 }
 
+fn get_var(k: impl AsRef<str>) -> color_eyre::Result<String> {
+    let k = k.as_ref();
+
+    std::env::var(k)
+        .map_err(color_eyre::Report::from)
+        .map_err(|e| e.wrap_err(format!("name: \"{k}\"")))
+}
+
 impl Config {
     pub fn from_env() -> Result<Self> {
         Ok(Self {
             cookie_secret: {
-                let s = std::env::var("SECRET")?;
+                let s = get_var("COOKIE_SECRET")?;
 
                 base64::engine::general_purpose::STANDARD.decode(&s)?
             },
-            db: std::env::var("DATABASE")?,
-            port: std::env::var("PORT")?.parse()?,
-            ip: std::env::var("IP")?.parse()?,
+            db: get_var("DATABASE")?,
+            port: get_var("PORT")?.parse()?,
+            ip: get_var("IP")?.parse()?,
 
-            oauth_id: std::env::var("OAUTH2_ID")?,
-            oauth_redirect: std::env::var("OAUTH2_REDIRECT")?,
-            oauth_secret: std::env::var("OAUTH2_SECRET")?,
-            oauth_issuer: std::env::var("OAUTH2_ISSUER")?.parse()?,
+            oauth_id: get_var("OAUTH2_ID")?,
+            oauth_redirect: get_var("OAUTH2_REDIRECT")?,
+            oauth_secret: get_var("OAUTH2_SECRET")?,
+            oauth_issuer: get_var("OAUTH2_ISSUER")?.parse()?,
         })
     }
 }
