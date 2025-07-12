@@ -66,4 +66,19 @@ impl Database {
             .map(|i| i.map(|i| UserId(i.id)))
             .map_err(color_eyre::Report::from)
     }
+
+    pub async fn get_user_from_name(&self, name: impl AsRef<str>) -> Result<Option<TableUsers>> {
+        let n = name.as_ref();
+        sqlx::query!("SELECT * FROM users WHERE name = ? LIMIT 1", n)
+            .fetch_optional(&self.inner)
+            .await
+            .map(|s| {
+                s.map(|s| TableUsers {
+                    id: UserId(s.id),
+                    name: s.name,
+                    token: s.token,
+                })
+            })
+            .map_err(color_eyre::Report::from)
+    }
 }

@@ -9,22 +9,10 @@ CREATE TABLE IF NOT EXISTS keys (
   id INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
-  apiKey TEXT NOT NULL, -- they actual api key
   -- nonce BLOB NOT NULL, -- used to encrypt/decrypt the above data
-  updateAt INTEGER, -- try to autoupdate the key at <DATE> where <DATE> is a unix timestamp
-  updateWith TEXT, -- what to autoupdate with
-  -- 
-  -- either update* are BOTH null or not null, but they must be in sync
-  CHECK (
-    (
-      updateAt IS NULL
-      AND updateWith IS NULL
-    )
-    OR (
-      updateAt IS NOT NULL
-      AND updateWith IS NOT NULL
-    )
-  )
+  apiKey TEXT, -- they actual api key
+  rotateAt INTEGER, -- try to autorotate the key at <DATE> where <DATE> is a unix timestamp
+  rotateWith TEXT -- what to autorotate with
 );
 
 CREATE TABLE IF NOT EXISTS clients_key (

@@ -14,7 +14,7 @@ pub struct Database {
     inner: sqlx::SqlitePool,
 }
 
-type DateTime = chrono::DateTime<chrono::Utc>;
+pub type DateTime = chrono::DateTime<chrono::Utc>;
 
 impl Database {
     const INIT_SCRIPT: &str = include_str!("./database/init.sql");

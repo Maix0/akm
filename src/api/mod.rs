@@ -1,6 +1,7 @@
 use axum::http::StatusCode;
 
 pub mod client;
+pub mod key;
 mod utils;
 
 pub trait ErrorToStatusCode<T> {

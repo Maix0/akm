@@ -14,13 +14,9 @@ pub struct TableKeys {
     pub id: KeyId,
     pub name: String,
     pub description: String,
-    // currently the key is in plaintext, when everything will work, the key will be encrypted in
-    // the database using AES-GCM
-    pub api_key: Vec<u8>,
-
-    pub update_at: Option<DateTime>,
-    // same as the `api_key`
-    pub update_with: Option<Vec<u8>>,
+    pub key: Option<String>,
+    pub rotate_at: Option<DateTime>,
+    pub rotate_with: Option<String>,
 }
 
 impl Database {
@@ -28,20 +24,20 @@ impl Database {
         &self,
         name: impl AsRef<str>,
         desc: impl AsRef<str>,
-        key: String,
+        key: Option<String>,
         update_at: Option<DateTime>,
         update_with: Option<String>,
     ) -> Result<KeyId> {
         let name = name.as_ref();
         let desc = desc.as_ref();
 
-        let k = key.as_str();
+        let k = key.as_ref().map(String::as_str);
 
         let u_at = update_at.map(|d| d.timestamp());
         let u_with = update_with.as_deref();
 
         let query = sqlx::query!(
-            "INSERT INTO keys ('name', 'description', 'apiKey', 'updateAt', 'updateWith') VALUES (?, ?, ?, ?, ?) RETURNING id",
+            "INSERT INTO keys ('name', 'description', 'apiKey', 'rotateAt', 'rotateWith') VALUES (?, ?, ?, ?, ?) RETURNING id",
             name,
             desc,
             k,
@@ -61,9 +57,9 @@ impl Database {
             id: KeyId(s.id),
             name: s.name,
             description: s.description,
-            api_key: s.apiKey.into_bytes(),
-            update_at: s.updateAt.map(DateTime::from_timestamp_nanos),
-            update_with: s.updateWith.map(|s| s.into_bytes()),
+            key: s.apiKey,
+            rotate_at: s.rotateAt.map(DateTime::from_timestamp_nanos),
+            rotate_with: s.rotateWith,
         }))
     }
 
@@ -90,9 +86,67 @@ impl Database {
             id: KeyId(r.id),
             name: r.name,
             description: r.description,
-            api_key: r.apiKey.into_bytes(),
-            update_at: r.updateAt.map(DateTime::from_timestamp_nanos),
-            update_with: r.updateWith.map(String::into_bytes),
+            key: r.apiKey,
+            rotate_at: r.rotateAt.map(DateTime::from_timestamp_nanos),
+            rotate_with: r.rotateWith,
         }).collect())
+    }
+
+    pub async fn update_key_info(
+        &self,
+        key: KeyId,
+        name: impl AsRef<str>,
+        desc: impl AsRef<str>,
+    ) -> Result<()> {
+        let name = name.as_ref();
+        let desc = desc.as_ref();
+        sqlx::query!(
+            "UPDATE keys SET name = ?, description = ? WHERE id = ?",
+            name,
+            desc,
+            key.0
+        )
+        .execute(&self.inner)
+        .await
+        .map_err(color_eyre::Report::from)
+        .map(|_| ())
+    }
+
+    pub async fn update_key_secrets(
+        &self,
+        key: KeyId,
+        secret: Option<Option<String>>,
+        update_at: Option<Option<DateTime>>,
+        update_with: Option<Option<String>>,
+    ) -> Result<()> {
+        if let Some(secret) = secret {
+            sqlx::query!("UPDATE keys SET apiKey = ? WHERE id = ?", secret, key.0)
+                .execute(&self.inner)
+                .await
+                .map_err(color_eyre::Report::from)?;
+        }
+        if let Some(update_at) = update_at {
+            let update_at = update_at.map(|t| t.timestamp_nanos_opt().unwrap());
+            sqlx::query!(
+                "UPDATE keys SET rotateAt = ? WHERE id = ?",
+                update_at,
+                key.0
+            )
+            .execute(&self.inner)
+            .await
+            .map_err(color_eyre::Report::from)?;
+        }
+        if let Some(update_with) = update_with {
+            sqlx::query!(
+                "UPDATE keys SET rotateWith = ? WHERE id = ?",
+                update_with,
+                key.0
+            )
+            .execute(&self.inner)
+            .await
+            .map_err(color_eyre::Report::from)?;
+        }
+
+        Ok(())
     }
 }

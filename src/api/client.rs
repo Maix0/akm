@@ -60,7 +60,7 @@ pub async fn client_new(
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(get, path = "/client/{client}/info", 
     responses(
-        (status = OK, body = ClientInfo, description = "Info of a client)"),
+        (status = OK, body = inline(ClientInfo), description = "Info of a client)"),
         (status = FORBIDDEN, description = "Invalid Auth cookie"),
         (status = NOT_FOUND, description = "The client doesn't exist"),
     ),
@@ -94,7 +94,7 @@ pub struct KeyInfo {
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(get, path = "/client/{client}/key/list", 
     responses(
-        (status = OK, body = Vec<KeyInfo>, description = "Info of a client"),
+        (status = OK, body = inline(Vec<KeyInfo>), description = "Info of a client"),
         (status = FORBIDDEN, description = "Invalid Auth cookie"),
         (status = NOT_FOUND, description = "The client doesn't exist"),
     ),
@@ -122,7 +122,7 @@ pub async fn client_list_keys(
                 id: s.id.inner(),
                 name: s.name,
                 desc: s.description,
-                update_at: s.update_at.as_ref().and_then(DateTime::timestamp_nanos_opt),
+                update_at: s.rotate_at.as_ref().and_then(DateTime::timestamp_nanos_opt),
             })
         })
         .map(Iterator::collect)
@@ -137,7 +137,6 @@ pub async fn client_list_keys(
     ),
     params(
         ("client" = i64, Path, description = "The client"),
-        ("key" = i64, Path, description = "The keyId"),
     )
 )]
 pub async fn client_delete(

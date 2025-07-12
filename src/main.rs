@@ -26,6 +26,12 @@ pub fn router(state: AppState) -> OpenApiRouter {
         .routes(routes!(api::client::client_list_keys,))
         .routes(routes!(api::client::client_new,))
         .routes(routes!(api::client::client_new_secret))
+
+        .routes(routes!(api::key::key_new))
+        .routes(routes!(api::key::key_info, api::key::key_set_info))
+        .routes(routes!(api::key::key_delete))
+        .routes(routes!(api::key::key_rotate))
+        .routes(routes!(api::key::key_update_secret, api::key::key_secret))
         .with_state(state)
 }
 
