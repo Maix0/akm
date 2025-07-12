@@ -81,10 +81,11 @@ impl UserAuth {
     }
 }
 
-pub(crate) fn router() -> Router<AppState> {
+pub(crate) fn router(state: AppState) -> Router {
     Router::new()
         .route("/login", get(oauth2_login))
         .route("/callback", get(oauth2_callback))
+        .with_state(state)
 }
 
 async fn oauth2_login(

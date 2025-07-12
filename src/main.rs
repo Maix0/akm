@@ -26,7 +26,6 @@ pub fn router(state: AppState) -> OpenApiRouter {
         .routes(routes!(api::client::client_list_keys,))
         .routes(routes!(api::client::client_new,))
         .routes(routes!(api::client::client_new_secret))
-
         .routes(routes!(api::key::key_new))
         .routes(routes!(api::key::key_info, api::key::key_set_info))
         .routes(routes!(api::key::key_delete))
@@ -45,8 +44,9 @@ async fn main() -> Result<()> {
         .nest("/api/", router(state.clone()))
         .split_for_parts();
 
-    let router: axum::Router<()> =
-        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
+    let router: axum::Router<()> = router
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+        .nest("/auth", auth::router(state.clone()));
 
     let socket = TcpListener::bind((state.config.ip, state.config.port)).await?;
     axum::serve(socket, router).await?;
