@@ -1,0 +1,74 @@
+
+
+
+
+{%- set version='8' %}
+<!doctype html>
+<html lang="fr" data-bs-theme="dark">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>AKM - Maix.me</title>
+	<link href="/static/css/bootstrap.min.css?v={{ version }}" rel="stylesheet">
+	<link href="/static/css/common.css?v={{ version }}" rel="stylesheet">
+	<link rel="manifest" href="/static/manifest.json?v={{ version }}">
+	<link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
+	<link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png"/>
+	<meta name="theme-color" content="rgb(43, 48, 53)"/>
+
+	{% block css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary mb-2 shadow">
+	<div class="container-fluid">
+		<a class="navbar-brand me-2 position-relative {{ 'no-click' if kiosk else '' }}" href="/">
+			<img src="/static/img/android-chrome-192x192.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
+			AKM
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+		        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="/{{ 'idle' if kiosk else '' }}">Clusters</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="/friends/">Amis</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="/tutors/">Tutors</a>
+					</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+<div class="toast-container position-fixed top-0 end-0 p-3">
+	<div id="liveToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive"
+	     aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body" id="toast_body">
+			</div>
+			<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+			        aria-label="Close"></button>
+		</div>
+	</div>
+</div>
+{% block content %}{% endblock %}
+
+<script async src="/static/js/bootstrap.min.js?v={{ version }}"></script>
+<script src="/static/js/common.js?v={{ version }}"></script>
+{% block scripts %}{% endblock %}
+{% if theme and theme.enabled and len(theme.javascript) > 0 %}
+	<script>
+		{{ theme.javascript|safe }}
+	</script>
+{% endif %}
+
+<link href="/static/fontawesome/css/fontawesome.min.css?v={{ version }}" rel="stylesheet">
+<link href="/static/fontawesome/css/solid.min.css?v={{ version }}" rel="stylesheet">
+<link href="/static/fontawesome/css/regular.min.css?v={{ version }}" rel="stylesheet">
+<link href="/static/fontawesome/css/brands.min.css?v={{ version }}" rel="stylesheet">
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "name": "AKM",
+  "short_name": "AKM",
+  "description": "Api Key manager",
+  "icons": [
+	{
+	  "src": "/static/img/apple-touch-icon.png",
+	  "sizes": "180x180",
+	  "type": "image/png"
+	},
+	{
+	  "src": "/static/img/android-chrome-192x192.png",
+	  "sizes": "192x192",
+	  "type": "image/png"
+	},
+	{
+	  "src": "/static/img/android-chrome-512x512.png",
+	  "sizes": "512x512",
+	  "type": "image/png"
+	},
+	{
+	  "src": "/static/img/maskable_icon.png",
+	  "sizes": "1746x1746",
+	  "type": "image/png",
+	  "purpose": "any maskable"
+	},
+	{
+	  "src": "/static/img/maskable_icon_x128.png",
+	  "sizes": "128x128",
+	  "type": "image/png",
+	  "purpose": "any maskable"
+	},
+	{
+	  "src": "/static/img/maskable_icon_x512.png",
+	  "sizes": "512x512",
+	  "type": "image/png",
+	  "purpose": "any maskable"
+	},
+	{
+	  "src": "/static/img/original-1024.png",
+	  "sizes": "1024x1024",
+	  "type": "image/png"
+	}
+  ],
+  "id": "/",
+  "theme_color": "#212529",
+  "background_color": "#212529",
+  "display": "fullscreen",
+  "shortcuts": [],
+  "start_url": "/"
+}

@@ -12,6 +12,7 @@ color-eyre = "0.6.5"
 env_logger = "0.11.8"
 futures = "0.3.31"
 log = "0.4.27"
+minijinja = "2.11.0"
 openidconnect = "4.0.1"
 rand = "0.9.1"
 serde = { version = "1.0.219", features = ["derive"] }
