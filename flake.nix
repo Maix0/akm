@@ -47,7 +47,7 @@
             else "default";
         in
           buildRustToolchain {
-           toolchain = toolchainType;
+            toolchain = toolchainType;
             version = toolchainVersion;
             profile = toolchainProfile;
           }
@@ -64,7 +64,9 @@
             else pkgs.rust-bin.nightly.${toolchainDef.version}.${toolchainDef.profile}.override (builtins.removeAttrs toolchainDef ["toolchain" "version" "profile"])
           else throw "toolchain version isn't valid (not 'stable' or 'beta' or 'nightly')"
         else throw "toolchainDef isn't a string or an attr describing the toolchain";
-      rust_dev = buildRustToolchain "stable/latest/default";
+      rust_dev = (buildRustToolchain "stable/latest/default").override {
+        targets = ["wasm32-unknown-unknown" "x86_64-unknown-linux-gnu"];
+      };
       naersk' = pkgs.callPackage naersk {
         cargo = rust_dev;
         rustc = rust_dev;
@@ -83,6 +85,8 @@
             pkg-config
             sqlite-interactive
             sqlx-cli
+            wasm-bindgen-cli_0_2_100
+            wasm-pack
           ]
           ++ (packageIf "cargo-semver-checks" (p: p.packages.${system}.default))
           ++ (packageIf "cargo-workspace" (p: p.packages.${system}.default));

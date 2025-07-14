@@ -2,3 +2,5 @@
 *.sqlite
 .envrc
 .env
+json-glue/pkg
+#static/js/json-glue

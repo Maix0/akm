@@ -41,8 +41,8 @@
 
 {% block scripts %}
   <script>
-		function del_whitelist(user_id) {
-			fetch(`/admin/remove/whitelist/${user_id}/`).then(async response => {
+		function showSecrets(keyID) {
+			fetch(`/api/key/${user_id}/get_secrets`).then(async response => {
 				triggerToast(await response.text(), response.status === 200);
 				location.reload()
 			}).catch(error => {
