@@ -8,10 +8,14 @@ pub struct Config {
     pub db: String,
     pub port: u16,
     pub ip: Ipv4Addr,
+
     pub oauth_issuer: url::Url,
     pub oauth_secret: String,
     pub oauth_redirect: String,
     pub oauth_id: String,
+
+    pub template_dir: String,
+    pub static_dir: String,
 }
 
 fn get_var(k: impl AsRef<str>) -> color_eyre::Result<String> {
@@ -38,6 +42,9 @@ impl Config {
             oauth_redirect: get_var("OAUTH2_REDIRECT")?,
             oauth_secret: get_var("OAUTH2_SECRET")?,
             oauth_issuer: get_var("OAUTH2_ISSUER")?.parse()?,
+
+            template_dir: get_var("TEMPLATE_DIR")?,
+            static_dir: get_var("STATIC_DIR")?,
         })
     }
 }

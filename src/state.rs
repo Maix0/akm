@@ -22,9 +22,12 @@ pub struct AppState {
     >,
     pub key: Key,
     pub http_client: openidconnect::reqwest::Client,
+    pub template_env: minijinja::Environment<'static>,
 }
 
 impl AppState {
+    const TEMPLATE_NAMES: &[&str] = &["template.html", "index.html"];
+
     pub async fn new(config: Config) -> Result<Self> {
         let config: Arc<Config> = Arc::new(config);
         let key = Key::try_from(config.cookie_secret.as_slice())?;
@@ -51,12 +54,23 @@ impl AppState {
             config.oauth_redirect.clone(),
         )?);
 
+        let mut template_env = {
+            let mut env = minijinja::Environment::new();
+            env.set_loader(minijinja::path_loader(&config.template_dir));
+            env
+        };
+
+        for t in Self::TEMPLATE_NAMES {
+            let _ = template_env.get_template(t)?;
+        }
+
         Ok(Self {
             db,
             config,
             key,
             oauth2: Arc::new(client),
             http_client,
+            template_env,
         })
     }
 }

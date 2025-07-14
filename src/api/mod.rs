@@ -14,7 +14,7 @@ impl<T, E: std::fmt::Display> ErrorToStatusCode<T> for Result<T, E> {
         match self {
             Ok(v) => Ok(v),
             Err(e) => {
-                log::error!("Error: {e}");
+                tracing::error!("Error: {e}");
                 Err(StatusCode::INTERNAL_SERVER_ERROR)
             }
         }

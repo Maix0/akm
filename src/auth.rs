@@ -12,11 +12,11 @@ use axum_extra::extract::{
     cookie::{Cookie, Key, SameSite},
 };
 use color_eyre::eyre::{self, ContextCompat as _};
-use log::{error, warn};
 use openidconnect::{
     AuthorizationCode, CsrfToken, Nonce, OAuth2TokenResponse, PkceCodeChallenge, PkceCodeVerifier,
     RedirectUrl, Scope, UserInfoClaims,
 };
+use tracing::{debug, error, warn};
 
 use crate::{
     database::users::{TableUsers, UserId},
@@ -25,6 +25,7 @@ use crate::{
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct UserAuth(crate::database::users::UserId);
+pub struct UserAuthRedirect(crate::database::users::UserId);
 
 const AUTH_COOKIE: &str = "session";
 
@@ -47,8 +48,14 @@ impl FromRequestParts<AppState> for UserAuth {
                 error!("Failed to get user from db: {e}");
                 Err((cookies, StatusCode::INTERNAL_SERVER_ERROR))
             }
-            Ok(None) => Err((cookies.remove(AUTH_COOKIE), StatusCode::FORBIDDEN)),
-            Ok(Some(v)) => Ok(Self(v)),
+            Ok(None) => {
+                debug!("Cookie removed");
+                Err((cookies.remove(AUTH_COOKIE), StatusCode::FORBIDDEN))
+            }
+            Ok(Some(v)) => {
+                debug!("User is logged");
+                Ok(Self(v))
+            }
         }
     }
 }
@@ -68,6 +75,47 @@ impl OptionalFromRequestParts<AppState> for UserAuth {
     }
 }
 
+impl FromRequestParts<AppState> for UserAuthRedirect {
+    type Rejection = (PrivateCookieJar, Redirect);
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        <UserAuth as FromRequestParts<AppState>>::from_request_parts(parts, state)
+            .await
+            .map(|UserAuth(id)| UserAuthRedirect(id))
+            .map_err(|(c, _)| (c, Redirect::to("/auth/login")))
+    }
+}
+
+impl OptionalFromRequestParts<AppState> for UserAuthRedirect {
+    type Rejection = (PrivateCookieJar, Redirect);
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        state: &AppState,
+    ) -> Result<Option<Self>, Self::Rejection> {
+        <UserAuth as OptionalFromRequestParts<AppState>>::from_request_parts(parts, state)
+            .await
+            .map(|o| o.map(|UserAuth(id)| UserAuthRedirect(id)))
+            .map_err(|(c, _)| (c, Redirect::to("/auth/login")))
+    }
+}
+
+impl UserAuthRedirect {
+    pub async fn get_user(
+        self,
+        db: &crate::database::Database,
+    ) -> color_eyre::Result<Option<TableUsers>> {
+        db.fetch_user(self.0).await
+    }
+
+    pub async fn get_id(self) -> UserId {
+        self.0
+    }
+}
+
 impl UserAuth {
     pub async fn get_user(
         self,
@@ -83,11 +131,13 @@ impl UserAuth {
 
 pub(crate) fn router(state: AppState) -> Router {
     Router::new()
+        .route("/logout", get(logout))
         .route("/login", get(oauth2_login))
         .route("/callback", get(oauth2_callback))
         .with_state(state)
 }
 
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 async fn oauth2_login(
     State(state): State<crate::state::AppState>,
     hmap: HeaderMap,
@@ -118,6 +168,7 @@ async fn oauth2_login(
     ))
 }
 
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 async fn oauth2_callback(
     State(state): State<crate::AppState>,
     Query(params): Query<HashMap<String, String>>,
@@ -151,8 +202,7 @@ async fn oauth2_callback(
         let user_tok =
             name_to_user_token(&state.db, userinfo.email().wrap_err("no email")?.as_ref()).await?;
 
-        let mut cookie = Cookie::new("user", user_tok);
-        cookie.set_same_site(SameSite::Lax);
+        let mut cookie = Cookie::new(AUTH_COOKIE, user_tok);
         cookie.set_secure(false);
         cookie.set_path("/");
 
@@ -165,6 +215,18 @@ async fn oauth2_callback(
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
+}
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub async fn logout(
+    State(state): State<AppState>,
+    mut cookie: axum_extra::extract::CookieJar,
+) -> (axum_extra::extract::CookieJar, &'static str) {
+    let v: Vec<String> = cookie.iter().map(|c| c.name().to_string()).collect();
+    for s in v {
+        cookie = cookie.remove(s);
+    }
+    (cookie, "Logged out")
 }
 
 pub async fn name_to_user_token(

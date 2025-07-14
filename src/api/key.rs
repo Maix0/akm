@@ -3,7 +3,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
-use log::error;
+use tracing::error;
 
 use crate::{api::ErrorToStatusCode, state::AppState};
 

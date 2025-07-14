@@ -1,0 +1,55 @@
+{% extends "template.html" %}
+{% block css %}
+	<style>
+		.align-vertical {
+			vertical-align: middle;
+		}
+
+		.badge-sm {
+			font-size: 1rem;
+		}
+
+		.hidden {
+			display: none;
+		}
+	</style>
+{% endblock css %}
+{% block content %}
+	<div class="container mb-2 p-2 shadow rounded bg-body-tertiary text-center">
+		<button class="btn btn-outline-danger text-center" onclick="alert('refreshed cluster ofc')">Force Refresh Clusters</button>
+		<button class="btn btn-outline-danger text-center" onclick="alert('refreshed tutor lol')">Force Refresh Tutors</button>
+	</div>
+	<div class="container mb-2 p-2 shadow rounded bg-body-tertiary">
+		<h4>Users</h4>
+		<table class="table">
+			<thead>
+			<tr>
+				<th scope="col">ID</th>
+				<th scope="col">Name</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for user in users %}
+				<tr>
+					<td>{{ user.id }}</td>
+					<td>{{ user.name }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock content %}
+
+{% block scripts %}
+  <script>
+		function del_whitelist(user_id) {
+			fetch(`/admin/remove/whitelist/${user_id}/`).then(async response => {
+				triggerToast(await response.text(), response.status === 200);
+				location.reload()
+			}).catch(error => {
+				triggerToast(`Une erreur s'est produite (${error.status})`, false);
+				console.log(error)
+			});
+		}
+	</script>
+{% endblock scripts %}

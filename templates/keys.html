@@ -1,0 +1,54 @@
+{% extends "template.html" %}
+{% block css %}
+{% endblock css %}
+{% block content %}
+	<div class="container mb-2 p-2 shadow rounded bg-body-tertiary">
+		<h4>Keys</h4>
+		<table class="table">
+			<thead>
+			<tr>
+				<th scope="col">ID</th>
+				<th scope="col">Name</th>
+				<th scope="col">Description</th>
+				<th scope="col">Rotate At</th>
+
+				<th scope="col">Secret</th>
+				<th scope="col">Rotate Secret</th>
+				<th scope="col">-</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for k in keys %}
+				<tr data-id="{{ k.id }}">
+					<td>{{ k.id }}</td>
+					<td>{{ k.name | safe }}</td>
+					<td>{{ k.description | safe }}</td>
+					<td>{{ k.rotate_at }}</td>
+					<td class="secret"> </td>
+					<td class="rotated_secret"> </td>
+					<td> 
+						<button type="button" class="btn btn-warning" onclick="showSecrets({{ k.id }})">Show Secrets</button>
+						<button type="button" class="btn btn-primary" onclick="editKeyInfo({{ k.id }})">Edit Info</button>
+						<button type="button" class="btn btn-primary" onclick="editKeySecret({{ k.id }})">Edit Secret</button>
+						<button type="button" class="btn btn-danger"  onclick="deleteKey({{ k.id }})">-</button>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock content %}
+
+{% block scripts %}
+  <script>
+		function del_whitelist(user_id) {
+			fetch(`/admin/remove/whitelist/${user_id}/`).then(async response => {
+				triggerToast(await response.text(), response.status === 200);
+				location.reload()
+			}).catch(error => {
+				triggerToast(`Une erreur s'est produite (${error.status})`, false);
+				console.log(error)
+			});
+		}
+	</script>
+{% endblock scripts %}
