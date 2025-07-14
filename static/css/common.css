@@ -50,3 +50,31 @@
 .zindextop {
 	z-index: 1501 !important;
 }
+
+
+.spoiler {
+    background-color: #000;
+    color: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+    position: relative;
+}
+.spoiler::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #000;
+    border-radius: 4px;
+}
+.spoiler.revealed {
+    color: inherit;
+    background-color: #424242;
+    user-select: auto;
+    cursor: auto;
+
+}
+.spoiler.revealed::after {
+    display: none;
+}

@@ -54,4 +54,41 @@ impl Database {
             .map(|s| s.rows_affected() == 1)
             .map_err(color_eyre::Report::from)
     }
+
+    pub async fn get_all_clients(&self) -> Result<Vec<TableClients>> {
+        sqlx::query!("SELECT * FROM clients")
+            .fetch_all(&self.inner)
+            .await
+            .map_err(color_eyre::Report::from)
+            .map(|v| {
+                v.into_iter()
+                    .map(|r| TableClients {
+                        id: ClientId(r.id),
+                        name: r.name,
+                        description: r.description,
+                    })
+                    .collect()
+            })
+    }
+
+    pub async fn update_client_info(
+        &self,
+        client: ClientId,
+        name: impl AsRef<str>,
+        desc: impl AsRef<str>,
+    ) -> Result<()> {
+        let name = name.as_ref();
+        let desc = desc.as_ref();
+
+        sqlx::query!(
+            "UPDATE clients SET name = ?, description = ? WHERE id = ?",
+            name,
+            desc,
+            client.0
+        )
+        .execute(&self.inner)
+        .await
+        .map_err(color_eyre::Report::from)
+        .map(|_| ())
+    }
 }

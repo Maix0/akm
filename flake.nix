@@ -87,6 +87,7 @@
             sqlx-cli
             wasm-bindgen-cli_0_2_100
             wasm-pack
+            readline
           ]
           ++ (packageIf "cargo-semver-checks" (p: p.packages.${system}.default))
           ++ (packageIf "cargo-workspace" (p: p.packages.${system}.default));

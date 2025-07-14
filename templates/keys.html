@@ -2,53 +2,403 @@
 {% block css %}
 {% endblock css %}
 {% block content %}
-	<div class="container mb-2 p-2 shadow rounded bg-body-tertiary">
-		<h4>Keys</h4>
-		<table class="table">
-			<thead>
-			<tr>
-				<th scope="col">ID</th>
-				<th scope="col">Name</th>
-				<th scope="col">Description</th>
-				<th scope="col">Rotate At</th>
+	<!--
+		MODALS
+	-->
+    <div class="modal fade"
+         id="deleteKeyModal"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="delete" id="deleteKeyForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Delete Key</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" hidden>
+                        <div class="form-floating mb-3">
+                            <input type="hidden" name="id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade"
+         id="rotateKeyModal"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="delete" id="rotateKeyForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Rotate Key</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" hidden>
+                        <div class="form-floating mb-3">
+                            <input type="hidden" name="id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade"
+         id="addKeyModal"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" id="addKeyForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Add a new Key</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="name"
+                                   class="form-control"
+                                   id="input-add-name"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-add-name">Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="desc"
+                                   class="form-control"
+                                   id="input-add-desc"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-add-desc">Description</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-				<th scope="col">Secret</th>
-				<th scope="col">Rotate Secret</th>
-				<th scope="col">-</th>
-			</tr>
-			</thead>
-			<tbody>
-			{% for k in keys %}
-				<tr data-id="{{ k.id }}">
-					<td>{{ k.id }}</td>
-					<td>{{ k.name | safe }}</td>
-					<td>{{ k.description | safe }}</td>
-					<td>{{ k.rotate_at }}</td>
-					<td class="secret"> </td>
-					<td class="rotated_secret"> </td>
-					<td> 
-						<button type="button" class="btn btn-warning" onclick="showSecrets({{ k.id }})">Show Secrets</button>
-						<button type="button" class="btn btn-primary" onclick="editKeyInfo({{ k.id }})">Edit Info</button>
-						<button type="button" class="btn btn-primary" onclick="editKeySecret({{ k.id }})">Edit Secret</button>
-						<button type="button" class="btn btn-danger"  onclick="deleteKey({{ k.id }})">-</button>
-					</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="modal fade"
+         id="editKeyInfoModal"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" id="editKeyInfoForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Edit Key</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="name"
+                                   class="form-control"
+                                   id="input-edit-name"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-edit-name">Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="desc"
+                                   class="form-control"
+                                   id="input-edit-desc"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-edit-desc">Description</label>
+                        </div>
+                        <input type="hidden" name="id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade"
+         id="editKeySecretModal"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" id="editKeySecretForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Edit Key - Secrets</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="secret"
+                                   class="form-control"
+                                   id="input-edit-name"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-edit-secret">Secret</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="rotate_at"
+                                   class="form-control"
+                                   id="input-edit-desc"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-edit-rotate-at">Rotate At</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                   name="rotate_with"
+                                   class="form-control"
+                                   id="input-edit-desc"
+                                   placeholder="Lorem ipsum...">
+                            <label for="input-edit-rotate-with">Rotate With</label>
+                        </div>
+                        <input type="hidden" name="id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+	<!--
+		BODY
+	-->
+    <div class="container mb-2 p-2 shadow rounded bg-body-tertiary">
+        <h4>Keys
+            <button class="btn btn-success btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addKeyModal">+</button>
+		</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Secret</th>
+                    <th scope="col">Rotate At</th>
+                    <th scope="col">Rotate With</th>
+                    <th scope="col">-</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in keys %}
+                    <tr data-id="{{ k.id }}">
+                        <td class="id">{{ k.id }}</td>
+                        <td class="name">{{ k.name | e }}</td>
+                        <td class="desc">{{ k.description | e }}</td>
+                        <td class="secret">
+                            <span class="spoiler">{{ k.secret | e }}</span>
+                        </td>
+						<td class="rotate_at" data-raw="{{ k.rotate_at_raw | e}}">{{ k.rotate_at | e }}</td>
+                        <td class="rotate_with">
+                            <span class="spoiler">{{ k.rotate_with | e }}</span>
+                        </td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    onclick="rotateKey({{ k.id }})">Rotate</button>
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    onclick="editKeyInfo({{ k.id }})">Edit Info</button>
+                            <button type="button"
+                                    class="btn btn-warning"
+                                    onclick="editKeySecret({{ k.id }})">Edit Secret</button>
+                            <button type="button" class="btn btn-danger"  onclick="deleteKey({{ k.id }})">-</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock content %}
 
 {% block scripts %}
-  <script>
-		function showSecrets(keyID) {
-			fetch(`/api/key/${user_id}/get_secrets`).then(async response => {
-				triggerToast(await response.text(), response.status === 200);
-				location.reload()
-			}).catch(error => {
-				triggerToast(`Une erreur s'est produite (${error.status})`, false);
-				console.log(error)
-			});
-		}
+	<script>
+
+
+	function editKeySecret(id) {
+		let modalElem = document.querySelector("#editKeySecretModal");
+		if (!modalElem)
+			return ;
+		const row = document.querySelector(`tr[data-id="${id}"]`);
+		if (!row)
+			return ;
+		const secret = row.querySelector(`td.secret > .spoiler`);
+		const rotate_at = row.querySelector(`td.rotate_at`);
+		const rotate_with = row.querySelector(`td.rotate_with > .spoiler`);
+		console.log(secret, rotate_at, rotate_with);
+		if (!secret || !rotate_at || !rotate_with)
+			return;
+		modalElem.querySelector("input[name='id']").value = id.toString();
+		modalElem.querySelector("input[name='secret']").value = secret.innerText;
+		modalElem.querySelector("input[name='rotate_with']").value = rotate_with.innerText;
+		modalElem.querySelector("input[name='rotate_at']").value = rotate_at.dataset.raw;
+		let modal = new bootstrap.Modal(modalElem).show();
+	}
+	document.getElementById('editKeySecretForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+		const rotate_at = BigInt(data.get('rotate_at'));
+		data.set('rotate_at', rotate_at);
+
+		api_put(`/api/key/${data.get('id')}/secret`, data)
+		.then(async res => { 
+			triggerToast("Key has been deleted", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
+
+	/*
+	
+		EDIT KEY INFO
+
+	*/
+	function editKeyInfo(id) {
+		let modalElem = document.querySelector("#editKeyInfoModal");
+		if (!modalElem)
+			return ;
+		const row = document.querySelector(`tr[data-id="${id}"]`);
+		if (!row)
+			return ;
+		const name = row.querySelector(`td.name`);
+		const desc = row.querySelector(`td.desc`);
+		if (!name || !desc)
+			return;
+		modalElem.querySelector("input[name='id']").value = id.toString();
+		modalElem.querySelector("input[name='name']").value = name.innerText;
+		modalElem.querySelector("input[name='desc']").value = desc.innerText;
+		let modal = new bootstrap.Modal(modalElem).show();
+	}
+	document.getElementById('editKeyInfoForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+
+		api_put(`/api/key/${data.get('id')}/`, data)
+		.then(async res => { 
+			triggerToast("Key has been deleted", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
+
+	/*
+	
+		ADD KEY
+
+	*/
+	document.getElementById('addKeyForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+
+		api_post(`/api/key/new`, data)
+		.then(async res => { 
+			triggerToast("Key has been added", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
+
+	/*
+	
+		ROTATE KEY
+
+	*/
+	document.getElementById('rotateKeyForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+
+		api_put(`/api/key/${data.get("id")}/rotate`, data)
+		.then(async res => { 
+			triggerToast("Key has been added", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
+
+	/*
+	
+		DELETE KEY
+
+	*/
+	function deleteKey(id) {
+		let modalElem = document.querySelector("#deleteKeyModal");
+		if (!modalElem)
+			return ;
+		modalElem.querySelector("input[name='id']").value = id.toString();
+		let modal = new bootstrap.Modal(modalElem).show();
+	}
+	document.getElementById('deleteKeyForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+
+		api_delete(`/api/key/${data.get('id')}/delete`, data)
+		.then(async res => { 
+			triggerToast("Key has been deleted", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
+	/*
+	
+		ROTATE KEY
+
+	*/
+	function rotateKey(id) {
+		let modalElem = document.querySelector("#rotateKeyModal");
+		if (!modalElem)
+			return ;
+		modalElem.querySelector("input[name='id']").value = id.toString();
+		let modal = new bootstrap.Modal(modalElem).show();
+	}
+	document.getElementById('rotateKeyForm').addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const data = new Map((new FormData(event.target)).entries());
+
+		api_put(`/api/key/${data.get('id')}/rotate`, data)
+		.then(async res => { 
+			triggerToast("Key has been rotated", true); 
+			window.location.reload()
+		})
+		.catch(error => triggerToast(`An error occured (${error})`, false));
+	});
 	</script>
 {% endblock scripts %}

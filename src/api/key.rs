@@ -58,7 +58,7 @@ pub struct KeyInfoUpdate {
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[utoipa::path(post, path = "/key/{key}/", 
+#[utoipa::path(get, path = "/key/{key}/", 
     responses(
         (status = OK, body = inline(KeyInfo), description = "Key information (no secrets)"),
         (status = NOT_FOUND, description = "Key not found"),

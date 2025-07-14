@@ -4,21 +4,6 @@ use tracing::*;
 
 use crate::api::ErrorToStatusCode as _;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct UserInfo {
-    name: String,
-    id: i64,
-}
-
-impl From<crate::database::users::TableUsers> for UserInfo {
-    fn from(value: crate::database::users::TableUsers) -> Self {
-        Self {
-            name: value.name,
-            id: value.id.inner(),
-        }
-    }
-}
-
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn get_index(
     user: crate::auth::UserAuthRedirect,
@@ -26,7 +11,7 @@ pub async fn get_index(
 ) -> Result<Html<String>, StatusCode> {
     info!("Rendering index.html template");
     let a = state.template_env.get_template("index.html").to_status()?;
-    let user: UserInfo = user
+    let user: super::UserInfo = user
         .get_user(&state.db)
         .await
         .to_status()?

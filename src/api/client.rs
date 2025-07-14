@@ -30,7 +30,7 @@ impl From<crate::database::clients::TableClients> for ClientInfo {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, utoipa::ToSchema, Clone, Debug)]
-pub struct NewClientInfo {
+pub struct ClientInfoNoId {
     pub name: String,
     pub desc: String,
 }
@@ -41,12 +41,12 @@ pub struct NewClientInfo {
         (status = OK, body = i64, description = "new Client Created"),
         (status = FORBIDDEN, description = "Invalid Auth cookie"),
     ),
-    request_body(content = inline(NewClientInfo), content_type = "application/json")
+    request_body(content = inline(ClientInfoNoId), content_type = "application/json")
 )]
 pub async fn client_new(
     _: crate::auth::UserAuth,
     State(state): State<crate::AppState>,
-    Json(new_info): Json<NewClientInfo>,
+    Json(new_info): Json<ClientInfoNoId>,
 ) -> Result<Json<i64>, StatusCode> {
     let AppState { ref db, .. } = state;
 
@@ -58,9 +58,9 @@ pub async fn client_new(
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[utoipa::path(get, path = "/client/{client}/info", 
+#[utoipa::path(get, path = "/client/{client}/", 
     responses(
-        (status = OK, body = inline(ClientInfo), description = "Info of a client)"),
+        (status = OK, body = inline(ClientInfoNoId), description = "Info of a client)"),
         (status = FORBIDDEN, description = "Invalid Auth cookie"),
         (status = NOT_FOUND, description = "The client doesn't exist"),
     ),
@@ -81,6 +81,38 @@ pub async fn client_info(
         .ok_or(StatusCode::NOT_FOUND)
         .map(ClientInfo::from)
         .map(Json)
+}
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[utoipa::path(put, path = "/client/{client}/", 
+    responses(
+        (status = OK, description = "Info of a client)"),
+        (status = FORBIDDEN, description = "Invalid Auth cookie"),
+        (status = NOT_FOUND, description = "The client doesn't exist"),
+    ),
+    params(
+        ("client" = i64, Path, description = "The client"),
+    ),
+    request_body(content = inline(ClientInfoNoId), content_type = "application/json")
+    )
+]
+pub async fn client_set_info(
+    _: crate::auth::UserAuth,
+    State(state): State<crate::AppState>,
+    Path(client): Path<i64>,
+    Json(info): Json<ClientInfoNoId>,
+) -> Result<StatusCode, StatusCode> {
+    let AppState { ref db, .. } = state;
+
+    let client = super::utils::client_from_raw(db, client)
+        .await
+        .to_status()?
+        .ok_or(StatusCode::NOT_FOUND)?;
+
+    db.update_client_info(client.id, info.name, info.desc)
+        .await
+        .to_status()
+        .map(|_| StatusCode::OK)
 }
 
 #[derive(serde::Serialize, Clone, Debug, utoipa::ToSchema)]

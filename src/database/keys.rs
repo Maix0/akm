@@ -149,4 +149,23 @@ impl Database {
 
         Ok(())
     }
+
+    pub async fn get_all_keys(&self) -> Result<Vec<TableKeys>> {
+        sqlx::query!("SELECT * FROM keys")
+            .fetch_all(&self.inner)
+            .await
+            .map_err(color_eyre::Report::from)
+            .map(|v| {
+                v.into_iter()
+                    .map(|r| TableKeys {
+                        id: KeyId(r.id),
+                        name: r.name,
+                        description: r.description,
+                        key: r.apiKey,
+                        rotate_at: r.rotateAt.map(DateTime::from_timestamp_nanos),
+                        rotate_with: r.rotateWith,
+                    })
+                    .collect()
+            })
+    }
 }
