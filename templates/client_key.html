@@ -6,14 +6,14 @@
 		Modals
 	-->
     <div class="modal fade"
-         id="addClientModal"
+         id="associateKeyModal"
          tabindex="-1"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="post" id="addClientForm">
+                <form method="post" id="associateKeyForm">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5">Add a new Client</h1>
+                        <h1 class="modal-title fs-5">Associate a new Key</h1>
                         <button type="button"
                                 class="btn-close"
                                 data-bs-dismiss="modal"
@@ -45,96 +45,28 @@
             </div>
         </div>
     </div>
-    <div class="modal fade"
-         id="editClientModal"
-         tabindex="-1"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" id="editClientForm">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Edit Client</h1>
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-floating mb-3">
-                            <input type="text"
-                                   name="name"
-                                   class="form-control"
-                                   id="input-edit-name"
-                                   placeholder="Lorem ipsum...">
-                            <label for="input-edit-name">Name</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text"
-                                   name="desc"
-                                   class="form-control"
-                                   id="input-edit-desc"
-                                   placeholder="Lorem ipsum...">
-                            <label for="input-edit-desc">Description</label>
-                        </div>
-                        <input type="hidden" name="id">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Confirm</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade"
-         id="deleteClientModal"
-         tabindex="-1"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="delete" id="deleteClientForm">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Delete Client</h1>
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" hidden>
-                        <div class="form-floating mb-3">
-                            <input type="hidden" name="id">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Confirm</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     <!--
 		Actual Body
 	-->
     <div class="container mb-2 p-2 shadow rounded bg-body-tertiary">
         <h4>
-            Clients
+            Client Keys
             <button class="btn btn-success btn-sm"
                     data-bs-toggle="modal"
-                    data-bs-target="#addClientModal">+</button>
+                    data-bs-target="#associateKeyModal">+</button>
         </h4>
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Keys</th>
+                    <th scope="col">Key Name</th>
+                    <th scope="col">Key Description</th>
+                    <th scope="col">Secret</th>
                     <th scope="col">-</th>
                 </tr>
             </thead>
             <tbody>
-                {% for c in clients %}
+                {% for c in keys %}
                     <tr data-id="{{ c.id }}">
                         <td class="id">{{ c.id }}</td>
                         <td class="name">{{ c.name | e }}</td>

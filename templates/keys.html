@@ -166,7 +166,7 @@
                             <label for="input-edit-secret">Secret</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text"
+                            <input type="date"
                                    name="rotate_at"
                                    class="form-control"
                                    id="input-edit-desc"
@@ -264,13 +264,17 @@
 		modalElem.querySelector("input[name='id']").value = id.toString();
 		modalElem.querySelector("input[name='secret']").value = secret.innerText;
 		modalElem.querySelector("input[name='rotate_with']").value = rotate_with.innerText;
-		modalElem.querySelector("input[name='rotate_at']").value = rotate_at.dataset.raw;
+		modalElem.querySelector("input[name='rotate_at']").value = rotate_at.innerText;
 		let modal = new bootstrap.Modal(modalElem).show();
 	}
 	document.getElementById('editKeySecretForm').addEventListener('submit', function (event) {
 		event.preventDefault();
 
 		const data = new Map((new FormData(event.target)).entries());
+		if (data.get("rotate_at").length == 0)
+			data.set("rotate_at", null)
+		if (data.get("rotate_with").length == 0)
+			data.set("rotate_with", null)
 		api_put(`/api/key/${data.get('id')}/secret`, data)
 		.then(async res => { 
 			triggerToast("Key has been deleted", true); 

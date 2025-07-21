@@ -2,7 +2,7 @@ use axum::http::StatusCode;
 
 pub mod client;
 pub mod key;
-mod utils;
+pub mod utils;
 
 pub trait ErrorToStatusCode<T> {
     fn to_status(self) -> std::result::Result<T, StatusCode>;
