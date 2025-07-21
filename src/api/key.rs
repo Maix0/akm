@@ -275,3 +275,33 @@ pub async fn key_new(
         .map(|k| k.inner())
         .map(Json)
 }
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[utoipa::path(put, path = "/key/get", 
+    responses(
+        (status = OK, body = i64, description = "Key was created"),
+        (status = BAD_REQUEST, description = "Invalid Request: name must be alphanumeric or `-`/`_`. description must be between 0 and 1024 characters"),
+        (status = FORBIDDEN, description = "Invalid Auth cookie"),
+    ),
+    request_body(content = String, content_type = "application/text")
+)]
+pub async fn get_key(
+    State(state): State<crate::AppState>,
+    secret: String,
+) -> Result<String, StatusCode> {
+    let key = state
+        .db
+        .get_client_key_from_secret(&secret)
+        .await
+        .to_status()?
+        .map(|s| s.key_id)
+        .ok_or(StatusCode::FORBIDDEN)?;
+
+    state
+        .db
+        .fetch_key(key)
+        .await
+        .to_status()?
+        .ok_or(StatusCode::FORBIDDEN)
+        .map(|s| s.key.unwrap_or_default())
+}

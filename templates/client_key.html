@@ -21,11 +21,10 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-floating mb-3">
-                        <label for="assoc-k_id" class="form-label">Choose a user</label>
                             <select class="form-select" id="assoc-k_id" name="k_id" required>
                                 <option value="">-- Select A Key --</option>
                                 {% for k in not_own_keys%}
-                                    <option value="{{ k.id }}">{{ k.id }} -- {{ k.k_name | e }}</option>
+                                    <option value="{{ k.id }}">{{ k.id }} - {{ k.name | e }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -40,7 +39,7 @@
     </div>
     
 
-	<div class="modal fade"
+    <div class="modal fade"
          id="dissociateKeyModal"
          tabindex="-1"
          aria-hidden="true">
@@ -63,14 +62,14 @@
             </div>
         </div>
     </div>
-	
-	<div class="modal fade"
+    
+    <div class="modal fade"
          id="newSecretModal"
          tabindex="-1"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="post" id="newSecretModal">
+                <form method="post" id="newSecretForm">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5">New Secret For Key ?</h1>
                         <button type="button"
@@ -113,8 +112,9 @@
                     <tr data-id="{{ c.id }}" data-kid="{{ c.k_id }}">
                         <td class="id">{{ c.id }}</td>
                         <td class="kid">{{ c.k_id }}</td>
-                        <td class="name">{{ c.name | e }}</td>
-                        <td class="desc">{{ c.description | e }}</td>
+                        <td class="name">{{ c.k_name | e }}</td>
+                        <td class="desc">{{ c.k_desc | e }}</td>
+						<td class="secret"> <div class=spoiler> {{ c.secret }}</div> </td>
                         <td>
                             <button type="button"
                                     class="btn btn-secondary"
@@ -148,7 +148,7 @@
 
         const data = new Map((new FormData(event.target)).entries());
 
-        api_delete(`/api/client/{{ client.id }}/key/${data.get('k_id')}/new_secret`)
+        api_put(`/api/client/{{ client.id }}/key/${data.get('k_id')}/new_secret`)
         .then(async res => { 
             triggerToast("Client has been deleted", true); 
             window.location.reload()
@@ -165,8 +165,9 @@
         event.preventDefault();
 
         const data = new Map((new FormData(event.target)).entries());
+        console.log(data);
 
-        api_put(`/api/client/{{ client.id }}/key/${data.get('key_id')}/link`)
+        api_put(`/api/client/{{ client.id }}/key/${data.get('k_id')}/link`)
         .then(async res => { 
             triggerToast("Client has been deleted", true); 
             window.location.reload()

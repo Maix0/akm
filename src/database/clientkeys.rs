@@ -78,7 +78,7 @@ impl Database {
                     id: ClientKeyId(s.id),
                     client_id: super::clients::ClientId(s.clientID),
                     key_id: super::keys::KeyId(s.keyID),
-                    secret: todo!(),
+                    secret: s.secret,
                     last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
                 })
             })
@@ -96,7 +96,7 @@ impl Database {
                     id: ClientKeyId(s.id),
                     client_id: super::clients::ClientId(s.clientID),
                     key_id: super::keys::KeyId(s.keyID),
-                    secret: todo!(),
+                    secret: s.secret,
                     last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
                 })
             })
@@ -118,7 +118,7 @@ impl Database {
                     id: ClientKeyId(s.id),
                     client_id: super::clients::ClientId(s.clientID),
                     key_id: super::keys::KeyId(s.keyID),
-                    secret: todo!(),
+                    secret: s.secret,
                     last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
                 })
             })

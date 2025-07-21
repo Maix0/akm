@@ -28,13 +28,18 @@ pub fn router(state: AppState) -> OpenApiRouter {
         .routes(routes!(api::client::client_delete))
         .routes(routes!(api::client::client_delete_key,))
         .routes(routes!(api::client::client_get_secret,))
-        .routes(routes!(api::client::client_info, api::client::client_set_info))
+        .routes(routes!(
+            api::client::client_info,
+            api::client::client_set_info
+        ))
         .routes(routes!(api::client::client_list_keys,))
         .routes(routes!(api::client::client_new,))
+        .routes(routes!(api::client::client_new_key))
         .routes(routes!(api::client::client_new_secret))
-        .routes(routes!(api::key::key_new))
-        .routes(routes!(api::key::key_info, api::key::key_set_info))
+        .routes(routes!(api::key::get_key))
         .routes(routes!(api::key::key_delete))
+        .routes(routes!(api::key::key_info, api::key::key_set_info))
+        .routes(routes!(api::key::key_new))
         .routes(routes!(api::key::key_rotate))
         .routes(routes!(api::key::key_update_secret, api::key::key_secret))
         .with_state(state)
@@ -42,9 +47,7 @@ pub fn router(state: AppState) -> OpenApiRouter {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(Level::INFO)
-        .init();
+    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
     sqlx::any::install_default_drivers();
     let state = AppState::new(Config::from_env()?).await?;
 
