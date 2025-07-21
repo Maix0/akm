@@ -1,11 +1,12 @@
 use super::Database;
-use super::DateTime;
+use super::Date;
 
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;
+use std::str::FromStr;
 
 super::defineID!(KeyId => "keys");
 
@@ -15,7 +16,7 @@ pub struct TableKeys {
     pub name: String,
     pub description: String,
     pub key: Option<String>,
-    pub rotate_at: Option<DateTime>,
+    pub rotate_at: Option<Date>,
     pub rotate_with: Option<String>,
 }
 
@@ -25,15 +26,15 @@ impl Database {
         name: impl AsRef<str>,
         desc: impl AsRef<str>,
         key: Option<String>,
-        update_at: Option<DateTime>,
+        update_at: Option<Date>,
         update_with: Option<String>,
     ) -> Result<KeyId> {
         let name = name.as_ref();
         let desc = desc.as_ref();
 
-        let k = key.as_ref().map(String::as_str);
+        let k = key.as_deref();
 
-        let u_at = update_at.map(|d| d.timestamp());
+        let u_at = update_at.map(|d| d.to_string());
         let u_with = update_with.as_deref();
 
         let query = sqlx::query!(
@@ -53,14 +54,18 @@ impl Database {
             .fetch_optional(&self.inner)
             .await?;
 
-        Ok(query.map(|mut s| TableKeys {
-            id: KeyId(s.id),
-            name: s.name,
-            description: s.description,
-            key: s.apiKey,
-            rotate_at: s.rotateAt.map(DateTime::from_timestamp_nanos),
-            rotate_with: s.rotateWith,
-        }))
+        query
+            .map(|mut s| {
+                Ok(TableKeys {
+                    id: KeyId(s.id),
+                    name: s.name,
+                    description: s.description,
+                    key: s.apiKey,
+                    rotate_at: s.rotateAt.map(|s| Date::from_str(&s)).transpose()?,
+                    rotate_with: s.rotateWith,
+                })
+            })
+            .transpose()
     }
 
     pub async fn remove_key(&self, key: KeyId) -> Result<bool> {
@@ -82,14 +87,14 @@ impl Database {
         ).fetch_all(&self.inner)
         .await
         .map_err(color_eyre::Report::from)
-        .map(|v| v.into_iter().map(|r| TableKeys {
+        .map(|v| v.into_iter().map(|r| Ok(TableKeys {
             id: KeyId(r.id),
             name: r.name,
             description: r.description,
             key: r.apiKey,
-            rotate_at: r.rotateAt.map(DateTime::from_timestamp_nanos),
+            rotate_at: r.rotateAt.map(|s| Date::from_str(&s)).transpose()?,
             rotate_with: r.rotateWith,
-        }).collect())
+        })).collect::<Result<Vec<_>>>())?
     }
 
     pub async fn update_key_info(
@@ -116,7 +121,7 @@ impl Database {
         &self,
         key: KeyId,
         secret: Option<Option<String>>,
-        update_at: Option<Option<DateTime>>,
+        update_at: Option<Option<Date>>,
         update_with: Option<Option<String>>,
     ) -> Result<()> {
         if let Some(secret) = secret {
@@ -126,7 +131,7 @@ impl Database {
                 .map_err(color_eyre::Report::from)?;
         }
         if let Some(update_at) = update_at {
-            let update_at = update_at.map(|t| t.timestamp_nanos_opt().unwrap());
+            let update_at = update_at.map(|t| t.to_string());
             sqlx::query!(
                 "UPDATE keys SET rotateAt = ? WHERE id = ?",
                 update_at,
@@ -157,15 +162,17 @@ impl Database {
             .map_err(color_eyre::Report::from)
             .map(|v| {
                 v.into_iter()
-                    .map(|r| TableKeys {
-                        id: KeyId(r.id),
-                        name: r.name,
-                        description: r.description,
-                        key: r.apiKey,
-                        rotate_at: r.rotateAt.map(DateTime::from_timestamp_nanos),
-                        rotate_with: r.rotateWith,
+                    .map(|r| -> Result<_> {
+                        Ok(TableKeys {
+                            id: KeyId(r.id),
+                            name: r.name,
+                            description: r.description,
+                            key: r.apiKey,
+                            rotate_at: r.rotateAt.map(|s| Date::from_str(&s)).transpose()?,
+                            rotate_with: r.rotateWith,
+                        })
                     })
-                    .collect()
-            })
+                    .collect::<Result<Vec<_>>>()
+            })?
     }
 }

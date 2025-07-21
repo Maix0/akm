@@ -1,6 +1,3 @@
-import init, { fromJsonString, toJsonString } from "/static/js/json-glue/json_glue.js";
-await init();
-
 function triggerToast(text, success = false, enable_html = false) {
 	const toastTrigger = document.getElementById('liveToastBtn')
 	const toastLive = document.getElementById('liveToast')
@@ -21,6 +18,12 @@ function triggerToast(text, success = false, enable_html = false) {
 	toast.show()
 }
 
+function mapToObject(map) {
+	if (map instanceof Map)
+		return Object.fromEntries(map.entries());
+	return map;
+}
+
 async function api_get(url) {
 	let response = await fetch(url);
 	let text = await response.text();
@@ -29,12 +32,13 @@ async function api_get(url) {
 	}
 	if (text === "")
 		return {};
-	return fromJsonString(text);
+	return JSON.parse(text);
 }
 
 async function api_post(url, body = null) {
+	body = mapToObject(body);
 	if (body !== null) {
-		body = toJsonString(body);
+		body = JSON.stringify(body);
 	}
 	let response = await fetch(url, {
 		method: "POST",
@@ -47,12 +51,13 @@ async function api_post(url, body = null) {
 	}
 	if (text === "")
 		return {};
-	return fromJsonString(text);
+	return JSON.parse(text);
 }
 
 async function api_put(url, body = null) {
+	body = mapToObject(body);
 	if (body !== null) {
-		body = toJsonString(body);
+		body = JSON.stringify(body);
 	}
 	let response = await fetch(url, {
 		method: "PUT",
@@ -65,12 +70,13 @@ async function api_put(url, body = null) {
 	}
 	if (text === "")
 		return {};
-	return fromJsonString(text);
+	return JSON.parse(text);
 }
 
 async function api_delete(url, body = null) {
+	body = mapToObject(body);
 	if (body !== null) {
-		body = toJsonString(body);
+		body = JSON.stringify(body);
 	}
 	let response = await fetch(url, {
 		method: "DELETE",
@@ -83,7 +89,7 @@ async function api_delete(url, body = null) {
 	}
 	if (text === "")
 		return {};
-	return fromJsonString(text);
+	return JSON.parse(text);
 }
 
 

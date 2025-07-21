@@ -5,6 +5,7 @@ use axum::{
 };
 use tracing::error;
 
+use crate::database::Date;
 use crate::{api::ErrorToStatusCode, state::AppState};
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
@@ -12,7 +13,7 @@ pub struct KeyInfo {
     pub name: String,
     pub desc: String,
     pub has_key: bool,
-    pub rotate_at: Option<i64>,
+    pub rotate_at: Option<Date>,
     pub has_rotate_key: bool,
 }
 
@@ -35,7 +36,7 @@ pub struct KeySetSecrets {
         skip_serializing_if = "Option::is_none",
         with = "super::utils::double_option"
     )]
-    rotate_at: Option<Option<i64>>,
+    rotate_at: Option<Option<Date>>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
@@ -47,7 +48,7 @@ pub struct KeySetSecrets {
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct KeyGetSecrets {
     secret: Option<String>,
-    rotate_at: Option<i64>,
+    rotate_at: Option<Date>,
     rotate_with: Option<String>,
 }
 
@@ -84,7 +85,7 @@ pub async fn key_info(
             has_key: key.key.is_some(),
             has_rotate_key: key.rotate_with.is_some(),
             name: key.name,
-            rotate_at: key.rotate_at.map(|k| k.timestamp_nanos_opt().unwrap()),
+            rotate_at: key.rotate_at,
         })
         .map(Json)
 }
@@ -167,8 +168,9 @@ pub async fn key_rotate(
         .await
         .to_status()?
         .ok_or(StatusCode::NOT_FOUND)?;
+    dbg!(&key);
 
-    db.update_key_secrets(key.id, Some(key.rotate_with), None, None)
+    db.update_key_secrets(key.id, Some(key.rotate_with), Some(None), Some(None))
         .await
         .to_status()
         .map(|_| StatusCode::OK)
@@ -199,17 +201,10 @@ pub async fn key_update_secret(
         .to_status()?
         .ok_or(StatusCode::NOT_FOUND)?;
 
-    db.update_key_secrets(
-        key.id,
-        update.secret,
-        update
-            .rotate_at
-            .map(|t| t.map(crate::database::DateTime::from_timestamp_nanos)),
-        update.rotate_with,
-    )
-    .await
-    .to_status()
-    .map(|_| StatusCode::OK)
+    db.update_key_secrets(key.id, update.secret, update.rotate_at, update.rotate_with)
+        .await
+        .to_status()
+        .map(|_| StatusCode::OK)
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -236,7 +231,7 @@ pub async fn key_secret(
         .ok_or(StatusCode::NOT_FOUND)
         .map(|key| KeyGetSecrets {
             secret: key.key,
-            rotate_at: key.rotate_at.map(|d| d.timestamp_nanos_opt().unwrap()),
+            rotate_at: key.rotate_at,
             rotate_with: key.rotate_with,
         })
         .map(Json)
@@ -269,7 +264,7 @@ pub async fn key_new(
         );
         return Err(StatusCode::BAD_REQUEST);
     }
-    if (0..=1024).contains(&info.desc.chars().count()) {
+    if !(0..=1024).contains(&info.desc.chars().count()) {
         error!("new key description is too long");
         return Err(StatusCode::BAD_REQUEST);
     }

@@ -120,7 +120,7 @@ pub struct KeyInfo {
     id: i64,
     name: String,
     desc: String,
-    update_at: Option<i64>,
+    update_at: Option<crate::database::Date>,
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -154,7 +154,7 @@ pub async fn client_list_keys(
                 id: s.id.inner(),
                 name: s.name,
                 desc: s.description,
-                update_at: s.rotate_at.as_ref().and_then(DateTime::timestamp_nanos_opt),
+                update_at: s.rotate_at,
             })
         })
         .map(Iterator::collect)

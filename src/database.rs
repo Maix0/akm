@@ -1,8 +1,9 @@
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
+use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use sqlx::Executor;
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 
 pub mod clientkeys;
 pub mod clients;
@@ -14,7 +15,28 @@ pub struct Database {
     inner: sqlx::SqlitePool,
 }
 
-pub type DateTime = chrono::DateTime<chrono::Utc>;
+#[derive(Clone, Copy, Serialize, Deserialize, Eq, PartialEq, utoipa::ToSchema)]
+#[repr(transparent)]
+pub struct Date(pub chrono::NaiveDate);
+
+impl FromStr for Date {
+    type Err = <chrono::NaiveDate as FromStr>::Err;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        <chrono::NaiveDate as FromStr>::from_str(s).map(Self)
+    }
+}
+
+impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.0, f)
+    }
+}
+impl std::fmt::Debug for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(&self.0, f)
+    }
+}
 
 impl Database {
     const INIT_SCRIPT: &str = include_str!("./database/init.sql");

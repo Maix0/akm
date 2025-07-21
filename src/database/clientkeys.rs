@@ -1,14 +1,16 @@
 use crate::database::keys::KeyId;
 
 use super::Database;
-use super::DateTime;
+use super::Date;
 
+use chrono::DateTime;
 use color_eyre::{Result, eyre::eyre};
 use futures::StreamExt;
 use rand::RngCore;
 use sha2::Digest;
 use sqlx::Executor;
 use std::path::Path;
+use std::str::FromStr;
 use std::time::SystemTime;
 
 super::defineID!(ClientKeyId => "clients_key");
@@ -70,13 +72,17 @@ impl Database {
         .fetch_optional(&self.inner)
         .await?;
 
-        Ok(query.map(|mut s| TableClientsKey {
-            id: ClientKeyId(s.id),
-            client_id: super::clients::ClientId(s.clientID),
-            key_id: super::keys::KeyId(s.keyID),
-            secret: todo!(),
-            last_used: s.lastUsed.map(|t| DateTime::from_timestamp(t, 0).unwrap()),
-        }))
+        query
+            .map(|mut s| {
+                Ok(TableClientsKey {
+                    id: ClientKeyId(s.id),
+                    client_id: super::clients::ClientId(s.clientID),
+                    key_id: super::keys::KeyId(s.keyID),
+                    secret: todo!(),
+                    last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
+                })
+            })
+            .transpose()
     }
 
     pub async fn fetch_client_key(&self, key: ClientKeyId) -> Result<Option<TableClientsKey>> {
@@ -84,13 +90,17 @@ impl Database {
             .fetch_optional(&self.inner)
             .await?;
 
-        Ok(query.map(|mut s| TableClientsKey {
-            id: ClientKeyId(s.id),
-            client_id: super::clients::ClientId(s.clientID),
-            key_id: super::keys::KeyId(s.keyID),
-            secret: todo!(),
-            last_used: s.lastUsed.map(|t| DateTime::from_timestamp(t, 0).unwrap()),
-        }))
+        query
+            .map(|mut s| {
+                Ok(TableClientsKey {
+                    id: ClientKeyId(s.id),
+                    client_id: super::clients::ClientId(s.clientID),
+                    key_id: super::keys::KeyId(s.keyID),
+                    secret: todo!(),
+                    last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
+                })
+            })
+            .transpose()
     }
 
     pub async fn get_client_key_from_secret(
@@ -102,23 +112,28 @@ impl Database {
             .fetch_optional(&self.inner)
             .await?;
 
-        Ok(query.map(|mut s| TableClientsKey {
-            id: ClientKeyId(s.id),
-            client_id: super::clients::ClientId(s.clientID),
-            key_id: super::keys::KeyId(s.keyID),
-            secret: todo!(),
-            last_used: s.lastUsed.map(|t| DateTime::from_timestamp(t, 0).unwrap()),
-        }))
+        query
+            .map(|mut s| {
+                Ok(TableClientsKey {
+                    id: ClientKeyId(s.id),
+                    client_id: super::clients::ClientId(s.clientID),
+                    key_id: super::keys::KeyId(s.keyID),
+                    secret: todo!(),
+                    last_used: s.lastUsed.map(|t| Date::from_str(t.as_str())).transpose()?,
+                })
+            })
+            .transpose()
     }
 
     // return true if the client_key has been updated
     pub async fn update_client_key_last_used(&self, key: ClientKeyId) -> Result<bool> {
-        let date = DateTime::from(SystemTime::now());
-        let timestamp = date.timestamp();
+        let date = DateTime::<chrono::Utc>::from(SystemTime::now());
+        let date = Date(date.date_naive());
+        let date = date.to_string();
 
         sqlx::query!(
             "UPDATE clients_key SET lastUsed = ? WHERE id = ?",
-            timestamp,
+            date,
             key.0
         )
         .execute(&self.inner)
@@ -182,11 +197,12 @@ impl Database {
             .map_err(color_eyre::Report::from)
     }
 }
+
 #[derive(Debug, Clone)]
 pub struct TableClientsKey {
     pub id: ClientKeyId,
     pub client_id: super::clients::ClientId,
     pub key_id: super::keys::KeyId,
     pub secret: String,
-    pub last_used: Option<DateTime>,
+    pub last_used: Option<Date>,
 }

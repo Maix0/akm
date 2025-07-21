@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS keys (
   description TEXT NOT NULL,
   -- nonce BLOB NOT NULL, -- used to encrypt/decrypt the above data
   apiKey TEXT, -- they actual api key
-  rotateAt INTEGER, -- try to autorotate the key at <DATE> where <DATE> is a unix timestamp
+  rotateAt TEXT, -- try to autorotate the key at <DATE> where <DATE> is a `YYYY-MM-DD`
   rotateWith TEXT -- what to autorotate with
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS clients_key (
   clientID INTEGER NOT NULL, -- the client that will use this key
   keyID INTEGER NOT NULL, -- the key id
   secret TEXT NOT NULL, -- the secret that the client will need to provide
-  lastUsed INTEGER, -- unix timestamp
+  lastUsed TEXT, -- unix timestamp
   --
   UNIQUE (clientID, keyID),
   FOREIGN KEY (clientID) REFERENCES clients (id),

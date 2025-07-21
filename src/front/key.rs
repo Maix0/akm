@@ -10,9 +10,8 @@ struct KeyInfo {
     name: String,
     description: String,
     secret: String,
-    rotate_at: String,
+    rotate_at: Option<crate::database::Date>,
     rotate_with: String,
-    rotate_at_raw: i64,
 }
 
 impl From<crate::database::keys::TableKeys> for KeyInfo {
@@ -21,14 +20,7 @@ impl From<crate::database::keys::TableKeys> for KeyInfo {
             name: value.name,
             id: value.id.inner(),
             description: value.description,
-            rotate_at_raw: value
-                .rotate_at
-                .map(|d| d.timestamp_nanos_opt().unwrap())
-                .unwrap_or_default(),
-            rotate_at: value
-                .rotate_at
-                .map(|t| t.to_rfc2822())
-                .unwrap_or_else(|| "Never".to_string()),
+            rotate_at: value.rotate_at,
             secret: value.key.unwrap_or_default(),
             rotate_with: value.rotate_with.unwrap_or_default(),
         }

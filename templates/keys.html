@@ -271,9 +271,6 @@
 		event.preventDefault();
 
 		const data = new Map((new FormData(event.target)).entries());
-		const rotate_at = BigInt(data.get('rotate_at'));
-		data.set('rotate_at', rotate_at);
-
 		api_put(`/api/key/${data.get('id')}/secret`, data)
 		.then(async res => { 
 			triggerToast("Key has been deleted", true); 
@@ -327,24 +324,6 @@
 		const data = new Map((new FormData(event.target)).entries());
 
 		api_post(`/api/key/new`, data)
-		.then(async res => { 
-			triggerToast("Key has been added", true); 
-			window.location.reload()
-		})
-		.catch(error => triggerToast(`An error occured (${error})`, false));
-	});
-
-	/*
-	
-		ROTATE KEY
-
-	*/
-	document.getElementById('rotateKeyForm').addEventListener('submit', function (event) {
-		event.preventDefault();
-
-		const data = new Map((new FormData(event.target)).entries());
-
-		api_put(`/api/key/${data.get("id")}/rotate`, data)
 		.then(async res => { 
 			triggerToast("Key has been added", true); 
 			window.location.reload()
