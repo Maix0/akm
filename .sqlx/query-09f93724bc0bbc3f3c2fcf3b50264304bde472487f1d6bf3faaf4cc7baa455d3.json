@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT keys.* FROM keys INNER JOIN clients_key ON clients_key.keyID == keys.id WHERE clients_key.clientID = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "apiKey",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateAt",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateWith",
+        "ordinal": 5,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "09f93724bc0bbc3f3c2fcf3b50264304bde472487f1d6bf3faaf4cc7baa455d3"
+}

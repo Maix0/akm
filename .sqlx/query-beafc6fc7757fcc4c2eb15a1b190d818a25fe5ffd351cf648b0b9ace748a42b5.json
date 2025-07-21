@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM keys",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "apiKey",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateAt",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateWith",
+        "ordinal": 5,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "beafc6fc7757fcc4c2eb15a1b190d818a25fe5ffd351cf648b0b9ace748a42b5"
+}

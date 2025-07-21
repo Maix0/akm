@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM clients_key where secret = ? LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "clientID",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "keyID",
+        "ordinal": 2,
+        "type_info": "Integer"
+      },
+      {
+        "name": "secret",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "lastUsed",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "9a2a52d8adcbbd7dbee9c1cb13bc9f9a8ff70423dfec45bc525db4dd6b41aeaf"
+}

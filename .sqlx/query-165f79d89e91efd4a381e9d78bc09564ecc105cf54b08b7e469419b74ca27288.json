@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE keys SET rotateWith = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "165f79d89e91efd4a381e9d78bc09564ecc105cf54b08b7e469419b74ca27288"
+}

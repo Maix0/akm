@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE keys SET apiKey = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "b1b88bcbbe8695e7c8e24cfa107db284909f1ba41632cac9054f1084bd010cbd"
+}

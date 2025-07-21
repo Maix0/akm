@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM keys WHERE id = ? LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "apiKey",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateAt",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "rotateWith",
+        "ordinal": 5,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "6684ee586e91e37009d5d5175c1585b3c8c724ba9b74e504f5e393b3b71fd91c"
+}

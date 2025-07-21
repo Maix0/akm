@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE clients_key SET lastUsed = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "1ed7e0e56c7fe90d37d2a5e0e258c9aaf23b32aed3eace74c2f79538274a0fe2"
+}
