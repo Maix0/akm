@@ -72,8 +72,45 @@
         rustc = rust_dev;
       };
     in {
-      packages.default = naersk'.buildPackage {
-        src = ./.;
+      packages = with pkgs; rec {
+        raw = naersk'.buildPackage {
+          name = "akm-raw";
+          src = ./.;
+        };
+
+        data = stdenv.mkDerivation {
+          inherit (raw) version;
+          pname = "akm-data";
+          src = ./.;
+          dontBuild = "true";
+          installPhase = ''
+            mkdir -p "$out/share"
+            cp -r ./static    $out/share/static;
+            cp -r ./templates $out/share/templates;
+          '';
+        };
+
+        full = stdenv.mkDerivation {
+          inherit (raw) version;
+          pname = "akm-full";
+          src = raw;
+          dontBuild = "true";
+          installPhase = ''
+            mkdir -p "$out/bin"
+
+            ln -s ${raw}/bin/akm "$out/bin/akm.unwrapped";
+
+            cat <<EOF >"$out/bin/akm"
+            #! ${runtimeShell}
+
+            : "$${STATIC_DIR:=${data}/share/static}"
+            : "$${TEMPLATE_DIR:=${data}/share/templates}"
+            exec "$out/bin/akm.unwrapped"
+            EOF
+            chmod +x $out/bin/akm
+          '';
+        };
+        default = full;
       };
 
       devShell = pkgs.mkShell {
