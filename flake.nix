@@ -103,8 +103,8 @@
             cat <<EOF >"$out/bin/akm"
             #! ${runtimeShell}
 
-            : "$${STATIC_DIR:=${data}/share/static}"
-            : "$${TEMPLATE_DIR:=${data}/share/templates}"
+            : "${"\\$"}{STATIC_DIR:=${data}/share/static}"
+            : "${"\\$"}{TEMPLATE_DIR:=${data}/share/templates}"
             exec "$out/bin/akm.unwrapped"
             EOF
             chmod +x $out/bin/akm
